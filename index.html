@@ -28,15 +28,6 @@
   --r: 16px;
   --font: 'Manrope', sans-serif;
 }
-input[type=range] {
-  appearance: none;
-  -webkit-appearance: none;
-  flex: 1;
-  height: 44px;
-  background: transparent;
-  cursor: pointer;
-  touch-action: none;
-}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
 
@@ -80,10 +71,9 @@ h1 span { color: var(--accent); }
 /* SLIDER */
 .slider-wrap { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .slider-label { font-size: 11px; color: var(--text-3); font-weight: 600; min-width: 14px; text-align: center; }
-input[type=range] { -webkit-appearance: none; flex: 1; height: 44px; background: transparent; cursor: pointer; touch-action: none; }
-input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--border); }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); margin-top: -11px; box-shadow: 0 2px 8px rgba(42,92,69,0.3); transition: transform .15s; }
-input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
+input[type=range] { -webkit-appearance: none; flex: 1; height: 44px; background: transparent; cursor: pointer; touch-action: pan-x; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: var(--border); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); margin-top: -13px; box-shadow: 0 2px 8px rgba(42,92,69,0.3); }
 .slider-val { min-width: 52px; text-align: right; font-size: 14px; font-weight: 700; color: var(--accent); }
 
 /* TOGGLE */
@@ -98,7 +88,22 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
 .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: white; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 4px rgba(0,0,0,.15); pointer-events: none; }
 .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
 
-/* TIP */
+/* STEPPER */
+.stepper-wrap { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.step-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #2A5C45; color: white; border: none;
+  font-size: 24px; font-weight: 400; line-height: 1;
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.step-btn:active { opacity: 0.7; }
+.step-display { flex: 1; text-align: center; }
+.step-val { display: block; font-size: 18px; font-weight: 800; color: #2A5C45; }
+.step-range { display: block; font-size: 11px; color: #9A9A9A; margin-top: 2px; }
+
+
 .tip { background: var(--accent-light); border-radius: 10px; padding: 10px 12px; margin-top: 8px; display: flex; gap: 8px; align-items: flex-start; }
 .tip-icon { font-size: 14px; flex-shrink: 0; }
 .tip-text { font-size: 12px; color: var(--accent); line-height: 1.5; font-weight: 500; }
@@ -215,8 +220,8 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
 <body>
 
 <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('calc',this)">🧮 Калькулятор</button>
-  <button class="tab-btn"        onclick="switchTab('instr',this)">📋 Инструкция</button>
+  <button class="tab-btn active" data-tab="calc">🧮 Калькулятор</button>
+  <button class="tab-btn"        data-tab="instr">📋 Инструкция</button>
 </div>
 
 <!-- ═══════════ КАЛЬКУЛЯТОР ═══════════ -->
@@ -245,11 +250,13 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
           <div class="row-price" id="price-search">225 000 ₽</div>
         </div>
         <div class="row-desc">1 юнит = однородный ассортимент у одних фабрик. Кепки + панамы у одних = 1 юнит. Кепки у одних, рюкзаки у других = 2 юнита.</div>
-        <div class="slider-wrap">
-          <span class="slider-label">1</span>
-          <input type="range" id="units" min="1" max="6" value="3" oninput="calc()" onchange="calc()">
-          <span class="slider-label">6</span>
-          <span class="slider-val" id="units-val">3 юнита</span>
+        <div class="stepper-wrap">
+          <button class="step-btn" id="units-minus">−</button>
+          <div class="step-display">
+            <span class="step-val" id="units-val">3 юнита</span>
+            <span class="step-range">от 1 до 6</span>
+          </div>
+          <button class="step-btn" id="units-plus">+</button>
         </div>
         <div class="tip">
           <span class="tip-icon">💡</span>
@@ -273,11 +280,13 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
           <div class="row-price" id="price-trip">350 000 ₽</div>
         </div>
         <div class="row-desc">50 000 ₽/день — переговоры, инспекция фабрик, рынки, обучение. Минимум 6 дней.</div>
-        <div class="slider-wrap">
-          <span class="slider-label">6</span>
-          <input type="range" id="days" min="6" max="14" value="7" oninput="calc()" onchange="calc()">
-          <span class="slider-label">14</span>
-          <span class="slider-val" id="days-val">7 дней</span>
+        <div class="stepper-wrap">
+          <button class="step-btn" id="days-minus">−</button>
+          <div class="step-display">
+            <span class="step-val" id="days-val">7 дней</span>
+            <span class="step-range">от 6 до 14</span>
+          </div>
+          <button class="step-btn" id="days-plus">+</button>
         </div>
       </div>
     </div>
@@ -552,35 +561,37 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
     <div class="summary-row"><span class="summary-name">Сертификация + документы</span><span class="summary-val">25 000 ₽</span></div>
     <div class="summary-row"><span class="summary-name">Таможня и логистика образцов</span><span class="summary-val">55–65 000 ₽</span></div>
     <div class="summary-row"><span class="summary-name">Сопровождение (за 1 день)</span><span class="summary-val">50 000 ₽</span></div>
-    <div class="summary-cta" onclick="switchTab('calc', document.querySelectorAll('.tab-btn')[0])">👉 Считайте точную сумму под ваши параметры → <span>Калькулятор</span></div>
+    <div class="summary-cta" data-tab="calc">👉 Считайте точную сумму под ваши параметры → <span>Калькулятор</span></div>
   </div>
 
 </div><!-- /instr-page -->
 </div><!-- /tab-instr -->
 
 <script>
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  btn.classList.add('active');
-  document.getElementById('bottom-bar').style.display = name==='calc' ? 'block' : 'none';
-  window.scrollTo(0,0);
+var units = 3;
+var days = 7;
+
+function fmt(n) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + ' \u20bd';
+}
+function fmtShort(n) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+}
+function wordUnits(n) {
+  return n === 1 ? 'юнит' : n < 5 ? 'юнита' : 'юнитов';
+}
+function wordDays(n) {
+  return n === 1 ? 'день' : n < 5 ? 'дня' : 'дней';
 }
 
-function fmt(n) { return n.toLocaleString('ru-RU')+' ₽'; }
-function fmtShort(n) { return n.toLocaleString('ru-RU'); }
-
 function calc() {
-  const units = parseInt(document.getElementById('units').value);
-  const days  = parseInt(document.getElementById('days').value);
-  const cert  = document.getElementById('cert').checked;
-  const sgr   = document.getElementById('sgr').checked;
+  var cert = document.getElementById('cert').checked;
+  var sgr  = document.getElementById('sgr').checked;
 
-  document.getElementById('units-val').textContent = units+' '+(units===1?'юнит':units<5?'юнита':'юнитов');
-  document.getElementById('days-val').textContent  = days+' '+(days===1?'день':days<5?'дня':'дней');
+  document.getElementById('units-val').textContent = units + ' ' + wordUnits(units);
+  document.getElementById('days-val').textContent  = days  + ' ' + wordDays(days);
 
-  const tips = [
+  var tips = [
     'Всё — один вид товара у одних и тех же фабрик.',
     'Например, кепки и панамы у одних фабрик — 1 юнит.',
     '3 разные категории товаров у разных фабрик.',
@@ -588,150 +599,73 @@ function calc() {
     'Много разных категорий — скорее разные поставщики.',
     'Максимум: 6 совершенно разных видов товаров и фабрик.'
   ];
-  document.getElementById('units-tip-text').textContent = tips[units-1];
+  document.getElementById('units-tip-text').textContent = tips[units - 1];
 
-  const search    = units*75000;
-  const trip      = days*50000;
-  const certCost  = cert ? 25000 : 0;
-  const sgrCost   = (cert&&sgr) ? 15000 : 0;
-  const customs   = 60000;
-  const services  = 25000+search+25000;
-  const certTotal = certCost+sgrCost+customs;
-  const total     = services+trip+certTotal;
+  var search    = units * 75000;
+  var trip      = days * 50000;
+  var certCost  = cert ? 25000 : 0;
+  var sgrCost   = (cert && sgr) ? 15000 : 0;
+  var customs   = 60000;
+  var services  = 25000 + search + 25000;
+  var certTotal = certCost + sgrCost + customs;
+  var total     = services + trip + certTotal;
 
   document.getElementById('price-search').textContent = fmt(search);
   document.getElementById('price-trip').textContent   = fmt(trip);
-  document.getElementById('sgr-row').style.opacity = cert?'1':'.35';
-  document.getElementById('sgr-row').style.pointerEvents = cert?'auto':'none';
+  document.getElementById('sgr-row').style.opacity = cert ? '1' : '0.35';
+  document.getElementById('sgr-row').style.pointerEvents = cert ? 'auto' : 'none';
   document.getElementById('mini-services').textContent = fmtShort(services);
   document.getElementById('mini-trip').textContent     = fmtShort(trip);
   document.getElementById('mini-cert').textContent     = fmtShort(certTotal);
 
-  let note = `Презент. + ${units} ${units===1?'юнит':units<5?'юнита':'юнитов'} + ${days} дн.`;
-  if(cert) note += ' + серт.';
-  if(sgr&&cert) note += ' + СГР';
+  var note = 'Презент. + ' + units + ' ' + wordUnits(units) + ' + ' + days + ' дн.';
+  if (cert) note += ' + серт.';
+  if (sgr && cert) note += ' + СГР';
   document.getElementById('bottom-note').textContent = note;
-
-  const el = document.getElementById('total');
-  el.textContent = fmt(total);
-  el.classList.remove('pop');
-  void el.offsetWidth;
-  el.classList.add('pop');
+  document.getElementById('total').textContent = fmt(total);
 }
 
-// Robust slider handling for iOS + Android + Desktop
-document.querySelectorAll('input[type=range]').forEach(function(slider) {
-  function update() { calc(); }
-  slider.addEventListener('input', update);
-  slider.addEventListener('change', update);
+function switchTab(name) {
+  var panels = document.getElementsByClassName('tab-panel');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('active');
+  var btns = document.getElementsByClassName('tab-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  var active = document.querySelector('.tab-btn[data-tab="' + name + '"]');
+  if (active) active.classList.add('active');
+  document.getElementById('bottom-bar').style.display = name === 'calc' ? 'block' : 'none';
+  window.scrollTo(0, 0);
+}
 
-  slider.addEventListener('touchstart', function(e) {
-    e.stopPropagation();
-  }, { passive: true });
+// Wire up buttons after DOM ready
+window.onload = function() {
+  document.getElementById('units-minus').onclick = function() {
+    if (units > 1) { units--; calc(); }
+  };
+  document.getElementById('units-plus').onclick = function() {
+    if (units < 6) { units++; calc(); }
+  };
+  document.getElementById('days-minus').onclick = function() {
+    if (days > 6) { days--; calc(); }
+  };
+  document.getElementById('days-plus').onclick = function() {
+    if (days < 14) { days++; calc(); }
+  };
+  document.getElementById('cert').onchange = calc;
+  document.getElementById('sgr').onchange  = calc;
 
-  slider.addEventListener('touchmove', function(e) {
-    var touch = e.touches[0];
-    var rect = slider.getBoundingClientRect();
-    var ratio = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
-    var min = parseFloat(slider.min);
-    function switchTab(name, btn) {
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('tab-'+name).classList.add('active');
-      if (btn) btn.classList.add('active');
-      document.getElementById('bottom-bar').style.display = name==='calc' ? 'block' : 'none';
-      window.scrollTo(0,0);
-    }
+  var tabBtns = document.getElementsByClassName('tab-btn');
+  for (var i = 0; i < tabBtns.length; i++) {
+    (function(btn) {
+      btn.onclick = function() { switchTab(btn.getAttribute('data-tab')); };
+    })(tabBtns[i]);
+  }
 
-    function fmt(n) { return n.toLocaleString('ru-RU')+' ₽'; }
-    function fmtShort(n) { return n.toLocaleString('ru-RU'); }
+  var cta = document.querySelector('.summary-cta');
+  if (cta) cta.onclick = function() { switchTab('calc'); };
 
-    function calc() {
-      const units = parseInt(document.getElementById('units').value);
-      const days  = parseInt(document.getElementById('days').value);
-      const cert  = document.getElementById('cert').checked;
-      const sgr   = document.getElementById('sgr').checked;
-
-      document.getElementById('units-val').textContent = units+' '+(units===1?'юнит':units<5?'юнита':'юнитов');
-      document.getElementById('days-val').textContent  = days+' '+(days===1?'день':days<5?'дня':'дней');
-
-      const tips = [
-        'Всё — один вид товара у одних и тех же фабрик.',
-        'Например, кепки и панамы у одних фабрик — 1 юнит.',
-        '3 разные категории товаров у разных фабрик.',
-        'Широкий ассортимент: несколько несвязанных категорий.',
-        'Много разных категорий — скорее разные поставщики.',
-        'Максимум: 6 совершенно разных видов товаров и фабрик.'
-      ];
-      document.getElementById('units-tip-text').textContent = tips[units-1];
-
-      const search    = units*75000;
-      const trip      = days*50000;
-      const certCost  = cert ? 25000 : 0;
-      const sgrCost   = (cert&&sgr) ? 15000 : 0;
-      const customs   = 60000;
-      const services  = 25000+search+25000;
-      const certTotal = certCost+sgrCost+customs;
-      const total     = services+trip+certTotal;
-
-      document.getElementById('price-search').textContent = fmt(search);
-      document.getElementById('price-trip').textContent   = fmt(trip);
-      document.getElementById('sgr-row').style.opacity = cert?'1':'.35';
-      document.getElementById('sgr-row').style.pointerEvents = cert?'auto':'none';
-      document.getElementById('mini-services').textContent = fmtShort(services);
-      document.getElementById('mini-trip').textContent     = fmtShort(trip);
-      document.getElementById('mini-cert').textContent     = fmtShort(certTotal);
-      let note = `Презент. + ${units} ${units===1?'юнит':units<5?'юнита':'юнитов'} + ${days} дн.`;
-      if(cert) note += ' + серт.';
-      if(sgr&&cert) note += ' + СГР';
-      document.getElementById('bottom-note').textContent = note;
-
-      const el = document.getElementById('total');
-      el.textContent = fmt(total);
-      el.classList.remove('pop');
-      void el.offsetWidth;
-      el.classList.add('pop');
-    }
-
-    // Универсальная обработка для input[type=range] (мобильные и десктоп)
-    document.querySelectorAll('input[type=range]').forEach(function(slider) {
-      slider.addEventListener('input', calc);
-      slider.addEventListener('change', calc);
-    });
-
-    // Исправление для iOS/Android: обновлять value при touchmove
-    document.querySelectorAll('input[type=range]').forEach(function(slider) {
-      slider.addEventListener('touchmove', function(e) {
-        var touch = e.touches[0];
-        var rect = slider.getBoundingClientRect();
-        var ratio = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
-        var min = parseFloat(slider.min);
-        var max = parseFloat(slider.max);
-        var val = Math.round(min + ratio * (max - min));
-        if (slider.value != val) {
-          slider.value = val;
-          calc();
-        }
-      }, { passive: true });
-    });
-
-    // Исправление для tab-btn: делегирование событий (работает всегда)
-    document.querySelector('.tab-bar').addEventListener('click', function(e) {
-      if (e.target.classList.contains('tab-btn')) {
-        if (e.target.classList.contains('active')) return;
-        if (e.target.textContent.includes('Калькулятор')) {
-          switchTab('calc', e.target);
-        } else {
-          switchTab('instr', e.target);
-        }
-      }
-    });
-
-    // Для кнопки "Считайте точную сумму..." в инструкции
-    document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('summary-cta') || (e.target.closest && e.target.closest('.summary-cta'))) {
-        switchTab('calc', document.querySelectorAll('.tab-btn')[0]);
-      }
-    });
-
-    calc();
+  calc();
+};
+</script>
+</body>
+</html>
